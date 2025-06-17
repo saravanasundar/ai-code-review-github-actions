@@ -1,8 +1,8 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-const { Configuration, OpenAIApi } = require('openai');
-const { execSync } = require('child_process');
-const fs = require('fs');
+import { execSync } from 'child_process';
+import { Octokit } from '@octokit/rest';
+import fetch from 'node-fetch';
+import { readFileSync } from 'fs';
+import { Configuration, OpenAIApi } from 'openai'
 
 const confirugartion = new Configuration({
     apiKey: process.env.OPENAI_API_KEY
@@ -10,9 +10,8 @@ const confirugartion = new Configuration({
 const openai = new OpenAIApi(confirugartion);
 
 async function run() {
-    const token = process.env.GITHUB_TOKEN;
-    const octokit = github.getOctokit(token);
-    const context = github.context;
+    const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+    const context = octokit.context;
     const prNumber = context.payload.pull_request.number;
     const repo = context.repo;
     const commitId = context.payload.pull_request.head.sha;
@@ -24,7 +23,7 @@ async function run() {
         const filePath = file.filePath.replace(`${process.cwd()}/`, '');
         for (const message of file.messages) {
             const line = message.line;
-            const codeLine = fs.readFileSync(file.filePath, 'utf-8').split('\n')[line - 1];
+            const codeLine = readFileSync(file.filePath, 'utf-8').split('\n')[line - 1];
 
             const prompt = `This line has a lint issue: "${message.message}". Suggest a better version of this line:\n${codeLine}`;
             const response = await openai.createChatCompletion({
