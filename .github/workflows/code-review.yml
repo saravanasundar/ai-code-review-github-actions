@@ -1,0 +1,27 @@
+name: AI code review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run AI Lint Review
+        run: node .github/scripts/review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPEN_API_KEY }}
