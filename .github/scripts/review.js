@@ -1,16 +1,16 @@
 import { execSync } from 'child_process';
 import { Octokit } from '@octokit/rest';
-import fetch from 'node-fetch';
 import { readFileSync } from 'fs';
-import { Configuration, OpenAIApi } from 'openai'
+import OpenAI from 'openai';
 
-const confirugartion = new Configuration({
+const confirugartion = {
     apiKey: process.env.OPENAI_API_KEY
-});
-const openai = new OpenAIApi(confirugartion);
+};
+const openai = new OpenAI(confirugartion);
 
 async function run() {
     const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+    console.log('octokit', octokit);
     const context = octokit.context;
     const prNumber = context.payload.pull_request.number;
     const repo = context.repo;
